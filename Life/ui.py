@@ -177,7 +177,7 @@ class Grid( QtWidgets.QWidget ):
 		font.setPixelSize( 10 )	
 		self.setFont( font )
 		
-		self.grid_size = 20 
+		self.grid_size = 10 
 		self.data = data.Data( self.grid_size )
 		
 		self.setMouseTracking( True )
@@ -186,9 +186,6 @@ class Grid( QtWidgets.QWidget ):
 		x = event.x( )
 		y = event.y( )
 		
-		red_x = int( x / self.grid_size )
-		red_y = int( y / self.grid_size )
-
 		# width/height of each cell
 		subdiv_x = self.size( ).width( ) / self.grid_size
 		subdiv_y = self.size( ).height( ) / self.grid_size
@@ -196,10 +193,7 @@ class Grid( QtWidgets.QWidget ):
 		test_x = int( x / subdiv_x )
 		test_y = int( y / subdiv_y )
 
-	
-		pos = self.data.grid_to_pos( test_x, test_y )
-		print( '( {0},{1} ) : {2}'.format( test_x, test_y, pos ) )
-# 		self.data.create_life( red_x, red_y )
+		self.data.create_life( test_x, test_y )
 		
 		return QtWidgets.QWidget.mousePressEvent(self, event )
 
