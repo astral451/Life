@@ -5,12 +5,14 @@ http://zetcode.com/gui/pyqt5/firstprograms/
 """
 
 import sys
-import time
-import PyQt5.QtCore as QtCore
-import PyQt5.QtWidgets as QtWidgets 
-import PyQt5.QtGui as QtGui
-
 import threading
+import time
+
+import PyQt5.QtCore as QtCore
+import PyQt5.QtGui as QtGui
+import PyQt5.QtWidgets as QtWidgets
+
+import data
 
 def get_top_app( ):
 	return QtWidgets.QApplication.instance( )
@@ -54,6 +56,7 @@ class Window( QtWidgets.QMainWindow ):
 		
 		self.initUI( )
 		
+
 	def menu_setup( self ):
 		exit_act = QtWidgets.QAction( QtGui.QIcon( 'exit.png' ), '&Exit', self )
 		exit_act.setShortcut( 'Ctrl+Q' )
@@ -144,7 +147,6 @@ class Top_Window( QtWidgets.QWidget ):
 	
 
 	def on_thread_update( self ):
-		print( 'in update' )
 		paint_event = QtGui.QPaintEvent( self.rect( ) )
 		app = get_top_app( )
 		app.sendEvent( self, paint_event )
@@ -172,11 +174,34 @@ class Grid( QtWidgets.QWidget ):
 		super( ).__init__( )
 		
 		font = self.font( )
-		font.setPixelSize( 12 )	
+		font.setPixelSize( 10 )	
 		self.setFont( font )
 		
-		self.grid_size = 10
-		self.i = 0
+		self.grid_size = 20 
+		self.data = data.Data( self.grid_size )
+		
+		self.setMouseTracking( True )
+		
+	def mousePressEvent(self, event ):
+		x = event.x( )
+		y = event.y( )
+		
+		red_x = int( x / self.grid_size )
+		red_y = int( y / self.grid_size )
+
+		# width/height of each cell
+		subdiv_x = self.size( ).width( ) / self.grid_size
+		subdiv_y = self.size( ).height( ) / self.grid_size
+
+		test_x = int( x / subdiv_x )
+		test_y = int( y / subdiv_y )
+
+	
+		pos = self.data.grid_to_pos( test_x, test_y )
+		print( '( {0},{1} ) : {2}'.format( test_x, test_y, pos ) )
+# 		self.data.create_life( red_x, red_y )
+		
+		return QtWidgets.QWidget.mousePressEvent(self, event )
 
 
 	def draw_grid( self, painter ):
@@ -194,18 +219,12 @@ class Grid( QtWidgets.QWidget ):
 
 	def paintEvent( self, event ):
 
-		self.i += 1
 		painter = QtGui.QPainter( self )
-# 		painter.begin( self )
 		painter.setRenderHint( QtGui.QPainter.Antialiasing )
 		rect = event.rect( )
-# 		rect.setWidth( 50 )
-# 		rect.setHeight( 100 )
 		painter.fillRect( rect, QtGui.QBrush( QtCore.Qt.white ) )
 		
-		painter.drawText( 100, 100, "Hello {0}".format( self.i ) )
 		self.draw_grid( painter )
-# 		painter.end()
 		
 		
 		
