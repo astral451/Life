@@ -147,12 +147,25 @@ class Top_Window( QtWidgets.QWidget ):
 	
 
 	def on_thread_update( self ):
+		self.time_passes( )
+
 		paint_event = QtGui.QPaintEvent( self.rect( ) )
 		app = get_top_app( )
 		app.sendEvent( self, paint_event )
 		self.grid.update( )
 
+	
+	def time_passes( self ):
+		current_time = time.clock( )
+		if not hasattr( self, '_start_time' ):
+			self._start_time = current_time 
 		
+		# update our lifes
+		delta = current_time - self._start_time
+		self._start_time = current_time
+		self.grid.data.time_passes( delta )
+
+	
 	def closeEvent( self, event ):
 		
 		reply = QtWidgets.QMessageBox.question( self, 
@@ -182,6 +195,7 @@ class Grid( QtWidgets.QWidget ):
 		
 		self.setMouseTracking( True )
 		
+
 	def mousePressEvent(self, event ):
 		x = event.x( )
 		y = event.y( )
@@ -198,6 +212,40 @@ class Grid( QtWidgets.QWidget ):
 		return QtWidgets.QWidget.mousePressEvent(self, event )
 
 
+	def draw_life( self, painter ):
+
+		idxs, lifes = self.data.grid.get_all_life( )
+
+		subdiv_x = self.size( ).width( ) / self.grid_size
+		subdiv_y = self.size( ).height( ) / self.grid_size
+		
+		if lifes:
+			for idx, life in enumerate( lifes ) : 
+				l_idx = idxs[ idx ]
+				x, y = self.data.pos_to_grid( l_idx )
+				pos_x = int( x * subdiv_x ) - 1 # TODO, better alignment
+				pos_y = int( y * subdiv_y ) - 1
+				end_x = int( pos_x + subdiv_x )
+				end_y = int( pos_y + subdiv_y )
+
+				start_point = QtCore.QPoint( pos_x, pos_y )
+				end_point = QtCore.QPoint( end_x, end_y )
+				
+				self.draw_square( painter, start_point, end_point, life )
+
+	
+	def draw_square( self, painter, start_point, end_point, life ):
+		cur_val = life.life
+		# clamp the value, just in case
+		life_color = max( 0 , min( 255, 255 * ( ( life.MAX_LIFE - life.life ) / life.MAX_LIFE ) ) )
+
+
+		color = QtGui.QColor( life_color, life_color, life_color, 255 )
+		painter.setBrush( QtGui.QBrush( color ) )
+		painter.drawRect( QtCore.QRect( start_point, end_point ) )
+
+	
+
 	def draw_grid( self, painter ):
 		rect = self.rect( )
 		
@@ -211,14 +259,17 @@ class Grid( QtWidgets.QWidget ):
 			painter.drawLine( i * sub_x, 	y, 			i * sub_x, 	size_y  )
 			painter.drawLine( x, 			i * sub_y, 	size_x, 		i * sub_y  )
 
+
 	def paintEvent( self, event ):
 
 		painter = QtGui.QPainter( self )
 		painter.setRenderHint( QtGui.QPainter.Antialiasing )
 		rect = event.rect( )
+		painter.eraseRect( rect )
 		painter.fillRect( rect, QtGui.QBrush( QtCore.Qt.white ) )
 		
 		self.draw_grid( painter )
+		self.draw_life( painter )
 		
 		
 		
