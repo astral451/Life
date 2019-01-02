@@ -1,5 +1,49 @@
+'''
+Data that represents the Life, Grid and Neighborhood related to the lives.
+'''
+
+class Neighborhood( ):
+
+	NORTH 		= 'north'	
+	NORTH_EAST 	= 'north_east'
+	EAST			= 'east'
+	SOUTH_EAST	= 'south_east'
+	SOUTH			= 'south'
+	SOUTH_WEST	= 'south_west'
+	WEST			= 'west'
+	NORTH_WEST	= 'north_west'
+	
+	DIRECTIONS = [
+		NORTH, NORTH_EAST, EAST, SOUTH_EAST,
+		SOUTH, SOUTH_WEST, WEST, NORTH_WEST
+	]
+	
+
+	def __init__( self, pos, life ):
+
+		self.center			= { 'idx' : pos, 'life' : life }
+		self.north 			= { 'idx' : None, 'life' : None }
+		self.north_east 	= { 'idx' : None, 'life' : None }
+		self.east 			= { 'idx' : None, 'life' : None }
+		self.south_east 	= { 'idx' : None, 'life' : None } 
+		self.south 			= { 'idx' : None, 'life' : None } 
+		self.south_west 	= { 'idx' : None, 'life' : None } 
+		self.west 			= { 'idx' : None, 'life' : None } 
+		self.north_west 	= { 'idx' : None, 'life' : None } 
 
 
+	def set_life_in_direction( self, direction, idx, life ):
+		if direction in self.DIRECTIONS:
+			direction_data = getattr( self, direction )
+			direction_data[ 'life' ]	= life
+			direction_data[ 'idx' ] 	= idx 
+
+	
+	def get_data_in_pos( self, direction ):
+		if direction in self.DIRECTIONS:
+			return getattr( self, direction )
+
+		
 class Data():
 	'''
 	The Data holds the grid and one Life object.  This is used for creation
@@ -67,11 +111,31 @@ class Data():
 		'''
 
 		idx, all_life = self.grid.get_all_life()
+		adjacent_dead_lifes = set( )
+		
+		live_neighbors = [ ]
+		dead_neighbors = [ ]
+
 		if all_life:
 			for _i, life in enumerate( all_life ):
-				life.decrement()
-				if life.life == 0:
-					self.grid.kill_life( idx[ _i ] )
+				neighbors = self.grid.get_neighbors_of_position( idx[ _i ], life )
+				live_neighbors.append( neighbors )
+				for dir in neighbors.DIRECTIONS:
+					if not neighbors.get_data_in_pos( dir )[ 'life' ]:
+						adjacent_dead_lifes.add( neighbors.get_data_in_pos( dir )[ 'idx' ] )
+			
+			for _pos in list( adjacent_dead_lifes ):
+				dead_neighbors.append( self.grid.get_neighbors_of_position( _pos, None ) )
+					
+			print( 'lifes : {0}'.format( len( live_neighbors ) ) )
+			print( 'deads : {0}'.format( len( dead_neighbors ) ) )
+			
+			for neighbor in live_neighbors:
+				neighbor.center[ 'life' ].decrement( )
+				if neighbor.center[ 'life' ].life == 0:
+					self.grid.kill_life( neighbor.center[ 'idx' ]  )
+
+					
 
 
 class Grid():
@@ -122,13 +186,39 @@ class Grid():
 			return None, None
 
 	
-	def get_neighbors_of_position( self, pos ):
-		pass
-# 		n_pos = self.get_north( pos )
-# 		ne_pos = self.get_north_east( pos )
-# 		e_pos = self.get_east( pos )
-# 		se_pos = self.get_south_east( pos )
-# 		s_pos = self.get_south( pos )
+	def get_neighbors_of_position( self, pos, life ):
+
+		n_pos 	= self.get_north( pos )
+		ne_pos 	= self.get_north_east( pos )
+		e_pos 	= self.get_east( pos )
+		se_pos 	= self.get_south_east( pos )
+		s_pos 	= self.get_south( pos )
+		sw_pos 	= self.get_south_west( pos )
+		w_pos		= self.get_west( pos )
+		nw_pos	= self.get_north_west( pos )
+		
+		all_positions = [ 
+			n_pos,
+			ne_pos,
+			e_pos,
+			se_pos,
+			s_pos,
+			sw_pos,
+			w_pos,
+			nw_pos
+		]
+		
+# 		all_lifes = [ None for i in range( 8 ) ]
+		neighborhood = Neighborhood( pos, life )
+		for idx, pos in enumerate( all_positions ):
+			if pos:
+				_life = self.grid[ pos ]
+				position = all_positions[ idx ]
+				_dir = Neighborhood.DIRECTIONS[ idx ]
+				neighborhood.set_life_in_direction( _dir, position, _life )
+		
+		return neighborhood
+
 
 	def get_north( self, pos ):
 		new_pos = pos - self.divisions
@@ -205,6 +295,7 @@ class Life():
 
 	def __init__( self ):
 		self.life = 4 
+
 
 	def decrement( self ):
 		'''
