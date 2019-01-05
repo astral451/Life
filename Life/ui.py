@@ -15,9 +15,9 @@ import sys
 import threading
 import time
 
-import PyQt5.QtCore as QtCore
-import PyQt5.QtGui as QtGui
-import PyQt5.QtWidgets as QtWidgets
+import Qt.QtCore as QtCore
+import Qt.QtGui as QtGui
+import Qt.QtWidgets as QtWidgets
 
 import data
 
