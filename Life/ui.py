@@ -40,7 +40,7 @@ class Run_Thread( threading.Thread ):
 		super( ).__init__( )
 		self.method_to_execute = method_to_execute
 		self.keep_going = False
-		self.duration = 1 # duration to wait
+		self.duration = .25 # duration to wait
 
 
 	def run( self ):
@@ -230,7 +230,7 @@ class Grid( QtWidgets.QWidget ):
 		self.setFont( font )
 		
 		# TODO : Need to externalize this
-		self.grid_size = 20 
+		self.grid_size = 40 
 		self.data = data.Data( self.grid_size )
 		
 		self.setMouseTracking( True )
@@ -306,7 +306,7 @@ class Grid( QtWidgets.QWidget ):
 		sub_x = size_x / self.grid_size
 		sub_y = size_y / self.grid_size
 		
-		painter.setPen( QtGui.QPen( QtGui.QColor( "black" ) ) )
+		painter.setPen( QtGui.QPen( QtGui.QColor( "grey" ) ) )
 		for i in range( self.grid_size ):
 
 			painter.drawLine( i * sub_x, 	y, 			i * sub_x, 	size_y  )
