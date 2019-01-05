@@ -70,87 +70,6 @@ class App( QtWidgets.QApplication ):
 		
 
 
-# Old code from examples
-# class Window( QtWidgets.QMainWindow ):
-# 	def __init__( self ):
-# 		super( ).__init__( )
-# 		
-# 		self.initUI( )
-# 		
-# 
-# 	def menu_setup( self ):
-# 		exit_act = QtWidgets.QAction( QtGui.QIcon( 'exit.png' ), '&Exit', self )
-# 		exit_act.setShortcut( 'Ctrl+Q' )
-# 		exit_act.setStatusTip( 'Exit Application' )
-# 		exit_act.triggered.connect( self._close )
-# 		
-# 		view_act = QtWidgets.QAction( 'View status bar', self, checkable = True )
-# 		view_act.setStatusTip( 'View Status bar' )
-# 		view_act.setChecked( True )
-# 		view_act.triggered.connect( self.toggle_menu )
-# 		
-# 		menu_bar = self.menuBar( )
-# 		file_menu = menu_bar.addMenu( '&File' )
-# 		file_menu.addAction( exit_act )
-# 		view_menu = menu_bar.addMenu( '&View' )
-# 		view_menu.addAction( view_act )
-# 
-# 		
-# 	def initUI( self ):
-# 		QtWidgets.QToolTip.setFont( QtGui.QFont( 'SansSerif', 10 ) )
-# 		
-# 		self.setToolTip( 'This is a <b>QWidget</b> widget' )
-# 		
-# 		btn = QtWidgets.QPushButton( 'Button', self )
-# 		btn.setToolTip( 'This is a <b>QPushButton</b> widget' )
-# 		btn.resize( btn.sizeHint( ) )
-# 		btn.move( 10, 50 )
-# 
-# 		close = QtWidgets.QPushButton( 'Quit', self )
-# 		close.clicked.connect( self._close )
-# 		close.resize( close.sizeHint( ) )
-# 		close.move( 10, 80 )
-# 		
-# 		self.setGeometry( 200, 200, 512, 512 )
-# 		self.setWindowTitle( "Life" )
-# 		self.setWindowIcon( QtGui.QIcon( '..\web.png' ) )
-# 		
-# 		self.statusbar = self.statusBar( )
-# 		self.statusbar.showMessage( 'Ready' )
-# 		self.menu_setup( )
-# 
-# 		self.show( )
-# 
-# 	def _close( self ):
-# 		event = QtGui.QCloseEvent( )
-# 		self.statusBar( ).showMessage( 'close?' )
-# 		app = get_top_app( )
-# 		app.sendEvent( app, event )
-# 
-# 		
-# 	def closeEvent( self, event ):
-# 		
-# 		reply = QtWidgets.QMessageBox.question( self, 
-# 												'Message', 
-# 												"Are you sure to quit?",
-# 												QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-# 												QtWidgets.QMessageBox.No )
-# 		if reply == QtWidgets.QMessageBox.Yes:
-# 			event.accept( )
-# 		else:
-# 			event.ignore( )
-# 
-# 	
-# 	def toggle_menu( self, state ):
-# 		if state:
-# 			self.statusbar.show( )
-# 			self.statusbar.showMessage( 'Ready' )
-# 		else:
-# 			self.statusbar.hide( )
-# 		
-# 		self.update( )
-
-
 class Top_Window( QtWidgets.QMainWindow ):
 	"""
 	Top most window, contains the menus and such.
@@ -183,9 +102,15 @@ class Top_Window( QtWidgets.QMainWindow ):
 		pause_act.setStatusTip( 'Pause' )
 		pause_act.triggered.connect( self._pause )
 		
+		reset_act = QtWidgets.QAction( QtGui.QIcon( '.\_images\reset.png' ), '&Reset', self )
+		reset_act.setShortcut( 'Ctrl+R' )
+		reset_act.setStatusTip( 'Reset Grid' )
+		reset_act.triggered.connect( self._reset )
+
 		menu_bar = self.menuBar( )
 		menu_bar.addAction( play_act )
 		menu_bar.addAction( pause_act )
+		menu_bar.addAction( reset_act )
 
 
 	def _pause( self ):
@@ -203,6 +128,12 @@ class Top_Window( QtWidgets.QMainWindow ):
 		self.statusbar.showMessage( 'Play' )
 		self.grid_window.run = True 
 
+	
+	def _reset( self ):
+		# pause before reset
+		self._pause( )
+		self.statusbar.showMessage( 'Reset' )
+		self.grid_window.grid.reset( )
 
 	def closeEvent( self, event ):
 		"""
@@ -283,9 +214,6 @@ class Grid_Window( QtWidgets.QWidget ):
 		self._start_time = current_time
 		if self.run:
 			self.grid.data.time_passes( delta )
-
-	
-
 
 	
 
@@ -397,6 +325,8 @@ class Grid( QtWidgets.QWidget ):
 		self.draw_life( painter )
 		
 		
+	def reset( self ):
+		self.data.reset( )
 		
 
 if __name__ == "__main__":

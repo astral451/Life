@@ -2,6 +2,9 @@
 Data that represents the Life, Grid and Neighborhood related to the lives.
 '''
 
+import rules
+
+
 class Neighborhood( ):
 
 	NORTH 		= 'north'	
@@ -95,7 +98,7 @@ class Data():
 		'''
 		x = pos % self.grid.divisions
 		y = pos - x
-		y = y / self.grid.divisions
+		y = int( y / self.grid.divisions )
 
 		return x, y
 
@@ -118,23 +121,39 @@ class Data():
 
 		if all_life:
 			for _i, life in enumerate( all_life ):
+				# Neighbors may or may not be dead.  This reports 
 				neighbors = self.grid.get_neighbors_of_position( idx[ _i ], life )
 				live_neighbors.append( neighbors )
 				for dir in neighbors.DIRECTIONS:
 					if not neighbors.get_data_in_pos( dir )[ 'life' ]:
+						# for each 'neighbor' that doesn't contain a life we
+						# want to evaluate how many live lifes we have next 
+						# to those and decide if we want to create a new 
+						# life from them.
 						adjacent_dead_lifes.add( neighbors.get_data_in_pos( dir )[ 'idx' ] )
 			
 			for _pos in list( adjacent_dead_lifes ):
-				dead_neighbors.append( self.grid.get_neighbors_of_position( _pos, None ) )
+				if _pos:
+					dead_neighbors.append( self.grid.get_neighbors_of_position( _pos, None ) )
 					
-			print( 'lifes : {0}'.format( len( live_neighbors ) ) )
-			print( 'deads : {0}'.format( len( dead_neighbors ) ) )
 			
-			for neighbor in live_neighbors:
+			to_decrement, to_create = rules.standard_conway_rules( live_neighbors, dead_neighbors )		
+# 			to_decrement, to_create = rules.simple_rule( live_neighbors, dead_neighbors )
+			# normal decrement
+			print( 'lifes : {0} killing  {1}'.format( len( live_neighbors ), len( to_decrement ) ) )
+			print( 'deads : {0} spawning {1}'.format( len( dead_neighbors ), len( to_create ) ) )
+
+			for neighbor in to_decrement:
 				neighbor.center[ 'life' ].decrement( )
 				if neighbor.center[ 'life' ].life == 0:
 					self.grid.kill_life( neighbor.center[ 'idx' ]  )
+			for neighbor in to_create:
+				x, y = self.pos_to_grid( neighbor.center[ 'idx' ] )
+				self.create_life( x, y )
 
+
+	def reset( self ):
+		self.grid.clear_grid( )
 					
 
 
@@ -149,6 +168,10 @@ class Grid():
 
 	def __init__( self, divisions ):
 		self.divisions = divisions
+		self.clear_grid( )
+
+
+	def clear_grid( self ):
 		self.grid = [ None for x in range( self.divisions * self.divisions ) ]
 
 
@@ -291,10 +314,10 @@ class Life():
 	grid should know.  The Grid does know about neighbors so it at least does
 	that.
 	"""
-	MAX_LIFE = 4 
+	MAX_LIFE = 2 
 
 	def __init__( self ):
-		self.life = 4 
+		self.life = self.MAX_LIFE 
 
 
 	def decrement( self ):
