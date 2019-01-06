@@ -251,7 +251,10 @@ class Grid( QtWidgets.QWidget ):
 		test_x = int( x / subdiv_x )
 		test_y = int( y / subdiv_y )
 
-		self.data.create_life( test_x, test_y )
+		if event.button( ) == 2: # right-click
+			self.data.delete_life( test_x, test_y )
+		else:
+			self.data.create_life( test_x, test_y )
 		
 		# pass the mouse event along.
 		return QtWidgets.QWidget.mousePressEvent(self, event )

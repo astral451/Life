@@ -72,6 +72,11 @@ class Data():
 		life = self.life()
 		self.grid.add_life( pos, life )
 
+	def delete_life( self, x, y ):
+		
+		pos = self.grid_to_pos( x, y )
+		self.grid.rem_life( pos )
+
 
 	def grid_to_pos( self, x, y ):
 		'''
@@ -187,6 +192,10 @@ class Grid():
 
 		self.grid[ pos ] = life
 		
+
+	def rem_life( self, pos ):
+		self.grid[ pos ] = None
+
 
 	def kill_life( self, pos ):
 		'''
@@ -314,7 +323,7 @@ class Life():
 	grid should know.  The Grid does know about neighbors so it at least does
 	that.
 	"""
-	MAX_LIFE = 10 
+	MAX_LIFE = 1 
 
 	def __init__( self ):
 		self.life = self.MAX_LIFE 
