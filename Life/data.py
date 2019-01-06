@@ -58,6 +58,12 @@ class Data():
 		self.grid = Grid( div )
 		self.life = Life
 
+		self.life_log = {
+			'lives' 			: [ ],
+			'decrements' 	: [ ],
+			'deaths' 		: [ ],
+			'creates' 		: [ ]
+		}
 
 	def create_life( self, x, y ):
 		'''
@@ -143,19 +149,27 @@ class Data():
 					dead_neighbors.append( self.grid.get_neighbors_of_position( _pos, None ) )
 					
 			
-			to_decrement, to_create = rules.standard_conway_rules( live_neighbors, dead_neighbors )		
-# 			to_decrement, to_create = rules.simple_rule( live_neighbors, dead_neighbors )
-			# normal decrement
-			print( 'lifes : {0} killing  {1}'.format( len( live_neighbors ), len( to_decrement ) ) )
-			print( 'deads : {0} spawning {1}'.format( len( dead_neighbors ), len( to_create ) ) )
+			rule_to_apply = const.POTENTIAL_RULES.get( const.RULE_TO_USE, rules.simple_rule ) # defaults to a simple rule
+			if rule_to_apply:
+				to_decrement, to_create = rule_to_apply( live_neighbors, dead_neighbors )		
 
-			for neighbor in to_decrement:
-				neighbor.center[ 'life' ].decrement( )
-				if neighbor.center[ 'life' ].life == 0:
-					self.grid.kill_life( neighbor.center[ 'idx' ]  )
-			for neighbor in to_create:
-				x, y = self.pos_to_grid( neighbor.center[ 'idx' ] )
-				self.create_life( x, y )
+				# normal decrement
+				print( 'lifes : {0} dying {1}, spawning {2}'.format( len( live_neighbors ), len( to_decrement ), len( to_create ) ) )
+				self.life_log[ 'lives' ].append( len( live_neighbors ) )
+				self.life_log[ 'decrements' ].append( len( to_decrement ) )
+				self.life_log[ 'creates' ].append( len( to_create ) )
+
+				deaths = 0
+				for neighbor in to_decrement:
+					neighbor.center[ 'life' ].decrement( )
+					if neighbor.center[ 'life' ].life == 0:
+						self.grid.kill_life( neighbor.center[ 'idx' ]  )
+						deaths+= 1
+				for neighbor in to_create:
+					x, y = self.pos_to_grid( neighbor.center[ 'idx' ] )
+					self.create_life( x, y )
+
+				self.life_log[ 'deaths' ].append( deaths )
 
 
 	def reset( self ):

@@ -21,6 +21,7 @@ import Qt.QtWidgets as QtWidgets
 
 import data
 import const
+import graph
 
 
 def get_top_app( ):
@@ -108,10 +109,24 @@ class Top_Window( QtWidgets.QMainWindow ):
 		reset_act.setStatusTip( 'Reset' )
 		reset_act.triggered.connect( self._reset )
 
+		graph_act = QtWidgets.QAction( '&Graph', self )
+		graph_act.setShortcut( 'Ctrl+G' )
+		graph_act.setStatusTip( 'Graph Data' )
+		graph_act.triggered.connect( self._graph )
+		
+		
 		menu_bar = self.menuBar( )
 		menu_bar.addAction( play_act )
 		menu_bar.addAction( pause_act )
 		menu_bar.addAction( reset_act )
+		menu_bar.addAction( graph_act )
+
+	
+	def _graph( self ):
+		# first pause
+		self._pause( )
+		graph.create_chart( self.grid_window.grid.data.life_log )
+
 
 
 	def _pause( self ):
