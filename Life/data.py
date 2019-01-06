@@ -3,6 +3,7 @@ Data that represents the Life, Grid and Neighborhood related to the lives.
 '''
 
 import rules
+import const
 
 
 class Neighborhood( ):
@@ -323,7 +324,7 @@ class Life():
 	grid should know.  The Grid does know about neighbors so it at least does
 	that.
 	"""
-	MAX_LIFE = 1 
+	MAX_LIFE = const.MAX_LIFE 
 
 	def __init__( self ):
 		self.life = self.MAX_LIFE 

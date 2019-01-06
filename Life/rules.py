@@ -8,6 +8,14 @@ Created on Jan 4, 2019
 @author: nathan.turner
 '''
 
+import const
+
+def register_rule( rule_name, rule ):
+	if rule_name not in const.POTENTIAL_RULES:
+		const.POTENTIAL_RULES[ rule_name ] = rule 
+	const.RULE_TO_USE = rule_name
+
+
 def simple_rule( lives, empties ):
 	
 	lives_to_decrement = [ ]
@@ -61,3 +69,5 @@ def standard_conway_rules( lives, empties ):
 
 		
 		
+register_rule( 'simple', simple_rule )
+register_rule( 'conway', standard_conway_rules )

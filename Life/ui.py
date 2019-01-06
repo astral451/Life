@@ -20,6 +20,7 @@ import Qt.QtGui as QtGui
 import Qt.QtWidgets as QtWidgets
 
 import data
+import const
 
 
 def get_top_app( ):
@@ -40,7 +41,7 @@ class Run_Thread( threading.Thread ):
 		super( ).__init__( )
 		self.method_to_execute = method_to_execute
 		self.keep_going = False
-		self.duration = .25 # duration to wait
+		self.duration = const.STEP_DURATION # duration to wait
 
 
 	def run( self ):
@@ -104,7 +105,7 @@ class Top_Window( QtWidgets.QMainWindow ):
 		
 		reset_act = QtWidgets.QAction( QtGui.QIcon( '.\_images\reset.png' ), '&Reset', self )
 		reset_act.setShortcut( 'Ctrl+R' )
-		reset_act.setStatusTip( 'Reset Grid' )
+		reset_act.setStatusTip( 'Reset' )
 		reset_act.triggered.connect( self._reset )
 
 		menu_bar = self.menuBar( )
@@ -230,7 +231,7 @@ class Grid( QtWidgets.QWidget ):
 		self.setFont( font )
 		
 		# TODO : Need to externalize this
-		self.grid_size = 40 
+		self.grid_size = const.GRID_SUBDIV 
 		self.data = data.Data( self.grid_size )
 		
 		self.setMouseTracking( True )
@@ -303,17 +304,18 @@ class Grid( QtWidgets.QWidget ):
 	
 
 	def draw_grid( self, painter ):
-		rect = self.rect( )
-		
-		x, y, size_x, size_y = rect.getCoords( )
-		sub_x = size_x / self.grid_size
-		sub_y = size_y / self.grid_size
-		
-		painter.setPen( QtGui.QPen( QtGui.QColor( "grey" ) ) )
-		for i in range( self.grid_size ):
+		if const.DRAW_GRID:
+			rect = self.rect( )
+			
+			x, y, size_x, size_y = rect.getCoords( )
+			sub_x = size_x / self.grid_size
+			sub_y = size_y / self.grid_size
+			
+			painter.setPen( QtGui.QPen( QtGui.QColor( "grey" ) ) )
+			for i in range( self.grid_size ):
 
-			painter.drawLine( i * sub_x, 	y, 			i * sub_x, 	size_y  )
-			painter.drawLine( x, 			i * sub_y, 	size_x, 		i * sub_y  )
+				painter.drawLine( i * sub_x, 	y, 			i * sub_x, 	size_y  )
+				painter.drawLine( x, 			i * sub_y, 	size_x, 		i * sub_y  )
 
 
 	def paintEvent( self, event ):
