@@ -314,7 +314,7 @@ class Life():
 	grid should know.  The Grid does know about neighbors so it at least does
 	that.
 	"""
-	MAX_LIFE = 1 
+	MAX_LIFE = 10 
 
 	def __init__( self ):
 		self.life = self.MAX_LIFE 
