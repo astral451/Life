@@ -82,6 +82,7 @@ class Top_Window( QtWidgets.QMainWindow ):
 		self.setGeometry( 200, 200, 512, 512 )
 		self.setWindowTitle( "Life" )
 
+		self.setup_top_controls( )
 		self.grid_window = Grid_Window( )
 		self.setCentralWidget( self.grid_window )
 
@@ -89,6 +90,7 @@ class Top_Window( QtWidgets.QMainWindow ):
 		self.statusbar.showMessage( 'Paused' )
 		self.menu_setup( )
 
+		
 
 	def menu_setup( self ):
 		"""
@@ -121,6 +123,20 @@ class Top_Window( QtWidgets.QMainWindow ):
 		menu_bar.addAction( reset_act )
 		menu_bar.addAction( graph_act )
 
+
+	def setup_top_controls( self ):
+		horizontalGroupBox = QtWidgets.QGroupBox("Horizontal layout")
+		layout = QtWidgets.QHBoxLayout()
+
+		layout.addWidget(QtWidgets.QComboBox())
+		layout.addWidget(QtWidgets.QSpinBox())
+# 		layout.addWidget(button)
+
+		horizontalGroupBox.setLayout(layout)
+		
+		return horizontalGroupBox
+
+		
 	
 	def _graph( self ):
 		# first pause
@@ -128,13 +144,13 @@ class Top_Window( QtWidgets.QMainWindow ):
 		graph.create_chart( self.grid_window.grid.data.life_log )
 
 
-
 	def _pause( self ):
 		"""
 		sets the grids thread to pause, or rather to just stop time_passes 
 		"""
 		self.statusbar.showMessage( 'Pause' )
-		self.grid_window.run = False
+		self.grid_window._pause( )
+# 		self.grid_window.run = False
 		
 		
 	def _play( self ):
@@ -178,10 +194,21 @@ class Grid_Window( QtWidgets.QWidget ):
 	def __init__( self ):
 		super( ).__init__( )
 		
-		layout = QtWidgets.QGridLayout( )
-		self.grid = Grid( )
-		layout.addWidget( self.grid )
+# 		layout = QtWidgets.QGridLayout( )
+		layout = QtWidgets.QBoxLayout( QtWidgets.QBoxLayout.TopToBottom )
 		
+		horizontal_layout = self.setup_top_controls( )
+		layout.addWidget( horizontal_layout, stretch = 0 )	
+
+		self.grid = Grid( )
+		layout.addWidget( self.grid, stretch = 1 )
+		
+		# sort an assign selections.
+		sorted_keys = sorted( list( const.POTENTIAL_RULES.keys( ) ) )
+		for name in sorted_keys:
+			self.cb_evol.addItem( name )
+		idx = sorted_keys.index( const.RULE_TO_USE )
+		self.cb_evol.setCurrentIndex( idx )
 
 		self.run = False
 		self.thread = Run_Thread( self.on_thread_update )
@@ -189,6 +216,48 @@ class Grid_Window( QtWidgets.QWidget ):
 		self.setLayout( layout )
 		self.thread.start( )
 	
+
+	def setup_top_controls( self ):
+		'''
+		Setup the controls for the grid.  These set up the grid size, the
+		life duration, etc.  This also sets up the connections to the UI
+		changes. 
+		'''
+
+		horizontalGroupBox = QtWidgets.QGroupBox( "Grid Controls" )
+		layout = QtWidgets.QGridLayout( )
+		layout.addWidget( QtWidgets.QLabel( 'Grid' ), 0, 0 )
+		layout.addWidget( QtWidgets.QLabel( 'Evolution' ), 0, 1 )
+		layout.addWidget( QtWidgets.QLabel( 'Grid Div' ), 0, 2 )
+		layout.addWidget( QtWidgets.QLabel( 'Life Span' ), 0, 3 )
+
+		self.ch_grid = QtWidgets.QCheckBox( )
+		self.ch_grid.setTristate( False )
+		self.ch_grid.setChecked( const.DRAW_GRID )
+
+		self.cb_evol = QtWidgets.QComboBox( )
+		self.sp_div = QtWidgets.QSpinBox( )
+		self.sp_div.setRange( 2, 80 )
+		self.sp_div.setValue( 20 )
+		
+		self.sp_life = QtWidgets.QSpinBox( )
+		self.sp_life.setRange( 1, 20 )
+		self.sp_life.setValue( 1 )
+		
+		layout.addWidget( self.ch_grid, 1, 0 )
+		layout.addWidget( self.cb_evol, 1, 1 )
+		layout.addWidget( self.sp_div, 1, 2 )
+		layout.addWidget( self.sp_life, 1, 3 )
+
+		horizontalGroupBox.setLayout( layout )
+		
+		self.ch_grid.stateChanged.connect( self._grid_changed )
+		self.cb_evol.activated.connect( self._evolution_changed )
+		self.sp_div.valueChanged.connect( self._division_changed )
+		self.sp_life.valueChanged.connect( self._life_changed )
+		
+		return horizontalGroupBox
+
 
 
 	def on_thread_update( self ):
@@ -231,7 +300,58 @@ class Grid_Window( QtWidgets.QWidget ):
 		if self.run:
 			self.grid.data.time_passes( delta )
 
+
+	def _division_changed( self, grid_subdiv ):
+		'''
+		Set up vertical and horizontal grid divisions.
+			
+		:param grid_subdiv: The Horiz and Vert Subdivisions ( matched in each access)
+		:type grid_subdiv: int
+		'''
+		self._pause( )
+		const.GRID_SUBDIV = grid_subdiv
+		self.grid.reset( )
+		
 	
+	def _evolution_changed( self, idx ):
+		'''
+		Set the type of evolution.  
+			
+		:param idx: The index into the list
+		:type idx: int
+		'''
+		self._pause( )
+		key = self.cb_evol.itemText( idx )
+		const.RULE_TO_USE = key
+
+
+	def _grid_changed( self, display ):
+		'''
+		Setting the visibility of the grid.
+			
+		:param display: Display the Grid
+		:type display: bool
+		'''
+		self._pause( )
+		const.DRAW_GRID = display 
+	
+
+	def _life_changed(self, life_duration ):
+		'''
+		Set the length of the each life form.
+			
+		:param idx: The length of Life.MAX_LIFE
+		:type idx: int
+		'''
+
+		self._pause( )
+		data.Life.MAX_LIFE = life_duration
+		const.MAX_LIFE = life_duration 
+		
+		
+	def _pause( self ):
+		self.run = False
+		
 
 class Grid( QtWidgets.QWidget ):
 	"""
@@ -251,6 +371,7 @@ class Grid( QtWidgets.QWidget ):
 		
 		self.setMouseTracking( True )
 		
+	
 
 	def mousePressEvent(self, event ):
 		"""
@@ -307,6 +428,20 @@ class Grid( QtWidgets.QWidget ):
 
 	
 	def draw_square( self, painter, start_point, end_point, life ):
+		'''
+		Draw the square that represents a Life.  Provide the start, end and
+		the life ( which holds the current life )
+			
+		:param painter: the Painter
+		:type painter: QtGui.QPainter
+		:param start_point: position start
+		:type start_point: QtCore.QPoint
+		:param end_point: position end
+		:type end_point: QtCore.QPoint
+		:param life: The Life
+		:type life: data.Life
+		'''
+
 		# turn value into a color and clamp the value, just in case
 		# Note I invert the value so it goes from black -> white
 		life_color = max( 0 , min( 255, 255 * ( ( life.MAX_LIFE - life.life ) / life.MAX_LIFE ) ) )
@@ -319,6 +454,12 @@ class Grid( QtWidgets.QWidget ):
 	
 
 	def draw_grid( self, painter ):
+		'''
+		Draw the grid
+			
+		:param painter: The painter to use
+		:type painter: QtGui.QPainter
+		'''
 		if const.DRAW_GRID:
 			rect = self.rect( )
 			
@@ -346,6 +487,10 @@ class Grid( QtWidgets.QWidget ):
 		
 		
 	def reset( self ):
+		'''
+		Reset the grid data and set the subdivisions	
+		'''
+		self.grid_size = const.GRID_SUBDIV
 		self.data.reset( )
 		
 

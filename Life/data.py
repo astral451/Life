@@ -57,13 +57,17 @@ class Data():
 	def __init__( self, div ):
 		self.grid = Grid( div )
 		self.life = Life
+		self.setup_life_log( )
 
+
+	def setup_life_log( self ):
 		self.life_log = {
 			'lives' 			: [ ],
 			'decrements' 	: [ ],
 			'deaths' 		: [ ],
 			'creates' 		: [ ]
 		}
+
 
 	def create_life( self, x, y ):
 		'''
@@ -173,7 +177,13 @@ class Data():
 
 
 	def reset( self ):
-		self.grid.clear_grid( )
+		'''
+		reset the grid, clearing it, and also clearing the
+		log we write out for life data.	
+		'''
+
+		self.setup_life_log( )
+		self.grid.clear_grid(  )
 					
 
 
@@ -192,6 +202,7 @@ class Grid():
 
 
 	def clear_grid( self ):
+		self.divisions = const.GRID_SUBDIV 
 		self.grid = [ None for x in range( self.divisions * self.divisions ) ]
 
 

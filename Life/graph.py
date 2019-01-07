@@ -8,43 +8,37 @@ Created on Jan 5, 2019
 
 
 top_html  = """
-  <html>
+<html>
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
+      google.charts.load('current', {'packages':['corechart', 'line' ]});
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-			var data = new google.visualization.DataTable();
-			data.addColumn('number', 'Lives');
-			data.addColumn('number', 'Decrements');
-			data.addColumn('number', 'Deaths');
-			data.addColumn('number', 'Creates');
+        var data = google.visualization.arrayToDataTable([
 
-			data.addRows([
 """
 
 bottom_html = """			
-			 ]);
+        ]);
 
         var options = {
-          title: 'Conway Life Data',
-          curveType: 'function',
+          title: 'Conways Game of Life Graph',
+          curveType: 'line',
           legend: { position: 'bottom' }
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById('line'));
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
         chart.draw(data, options);
       }
     </script>
   </head>
   <body>
-    <div id="curve_chart" style="width: 1200px; height: 500px"></div>
+    <div id="curve_chart" style="width: 1200px; height: 600px"></div>
   </body>
-</html>
-"""
+</html>"""
 
 
 def create_chart( life_log ):
@@ -53,14 +47,14 @@ def create_chart( life_log ):
 	deaths = life_log.get( 'deaths' )
 	creates = life_log.get( 'creates' )
 	
-	string = ''
-	row_template = '\t[{live},	{decrement},	{death},	{create}]'
+	string = "[ 'Tick', 'Lives', 'Decrements', 'Deaths', 'Creates' ],"
+	row_template = '\t[{tick},	{live},	{decrement},	{death},	{create}]'
 	for idx in range( len( lives ) ):
 		life = lives[ idx ]
 		dec = decrements[ idx ]
 		det = deaths[ idx ]
 		cre = creates[ idx ]
-		line = row_template.format( live = life, decrement = dec, death = det, create = cre )
+		line = row_template.format( tick = idx, live = life, decrement = dec, death = det, create = cre )
 		if idx == 0:
 			string += '\n{0}'.format( line )
 		else:
