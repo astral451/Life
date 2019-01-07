@@ -11,7 +11,7 @@ Created on Jan 5, 2019
 
 MAX_LIFE 			= 1 
 GRID_SUBDIV 		= 20
-STEP_DURATION 		= .25
+STEP_DURATION 		= .05
 DRAW_GRID			= False 
 
 POTENTIAL_RULES 	= { } # filled out in rules

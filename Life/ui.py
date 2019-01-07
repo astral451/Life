@@ -237,7 +237,7 @@ class Grid_Window( QtWidgets.QWidget ):
 
 		self.cb_evol = QtWidgets.QComboBox( )
 		self.sp_div = QtWidgets.QSpinBox( )
-		self.sp_div.setRange( 2, 80 )
+		self.sp_div.setRange( 2, 200 )
 		self.sp_div.setValue( 20 )
 		
 		self.sp_life = QtWidgets.QSpinBox( )
