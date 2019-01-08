@@ -158,7 +158,6 @@ class Data():
 				to_decrement, to_create = rule_to_apply( live_neighbors, dead_neighbors )		
 
 				# normal decrement
-				print( 'lifes : {0} dying {1}, spawning {2}'.format( len( live_neighbors ), len( to_decrement ), len( to_create ) ) )
 				self.life_log[ 'lives' ].append( len( live_neighbors ) )
 				self.life_log[ 'decrements' ].append( len( to_decrement ) )
 				self.life_log[ 'creates' ].append( len( to_create ) )

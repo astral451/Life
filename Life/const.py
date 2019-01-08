@@ -9,6 +9,10 @@ Created on Jan 5, 2019
 @author: nathan
 '''
 
+import os
+
+
+
 MAX_LIFE 			= 1 
 GRID_SUBDIV 		= 20
 STEP_DURATION 		= .05
@@ -16,3 +20,6 @@ DRAW_GRID			= False
 
 POTENTIAL_RULES 	= { } # filled out in rules
 RULE_TO_USE			= ''
+
+CHART_FILE_NAME         = os.path.join( os.path.expanduser(  '~' ), 'life', 'chart.html' )
+

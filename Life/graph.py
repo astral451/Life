@@ -6,6 +6,8 @@ Created on Jan 5, 2019
 @author: nathan
 '''
 
+import os
+import const
 
 top_html  = """
 <html>
@@ -42,6 +44,11 @@ bottom_html = """
 
 
 def create_chart( life_log ):
+	"""
+	Create a chart.html file that follows the google chart notations.  It's used
+	to display the history and values happening while processing all the lives.
+	"""
+
 	lives = life_log.get( 'lives' )
 	decrements = life_log.get( 'decrements' )
 	deaths = life_log.get( 'deaths' )
@@ -62,11 +69,14 @@ def create_chart( life_log ):
 
 # 	final_html = html_example.format( DATA = string )
 	final_html = top_html + '\n{0}\n'.format( string ) + bottom_html
+
+	# Make sure the directory is there, then write the chart.html
+	if not os.path.exists( os.path.dirname( const.CHART_FILE_NAME ) ):
+			os.mkdir( os.path.dirname( const.CHART_FILE_NAME ) )
 	
-	filename = r'c:\chart.html'
-	with open( filename, 'w' ) as fio:
+	with open( const.CHART_FILE_NAME, 'w' ) as fio:
 		fio.write( final_html )
 
-	print( filename )
+	print( const.CHART_FILE_NAME )
 
 	
