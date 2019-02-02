@@ -104,7 +104,7 @@ class Top_Window( QtWidgets.QMainWindow ):
 		pause_act = QtWidgets.QAction( QtGui.QIcon( '.\_images\pause.png' ), 'P&ause', self )
 		pause_act.setShortcut( 'Ctrl+A' )
 		pause_act.setStatusTip( 'Pause' )
-		pause_act.triggered.connect( self._pause )
+		pause_act.triggered.connect( self.pause )
 		
 		reset_act = QtWidgets.QAction( QtGui.QIcon( '.\_images\reset.png' ), '&Reset', self )
 		reset_act.setShortcut( 'Ctrl+R' )
@@ -124,6 +124,14 @@ class Top_Window( QtWidgets.QMainWindow ):
 		menu_bar.addAction( graph_act )
 
 
+# 	def setup_play_controls(self ):
+# 		horizontal_group = QtWidgets.QGroupBox( "Play Controls" )
+# 		layout = QtWidgets.QHBoxLayout( )
+# 		
+# 		layout.addWidget( QtWidgets.QPushButton( 'Play', self ) )
+# 		horizontal_group.setLayout( layout )
+# 		
+
 	def setup_top_controls( self ):
 		horizontalGroupBox = QtWidgets.QGroupBox("Horizontal layout")
 		layout = QtWidgets.QHBoxLayout()
@@ -137,19 +145,18 @@ class Top_Window( QtWidgets.QMainWindow ):
 		return horizontalGroupBox
 
 		
-	
 	def _graph( self ):
 		# first pause
-		self._pause( )
+		self.pause( )
 		graph.create_chart( self.grid_window.grid.data.life_log )
 
 
-	def _pause( self ):
+	def pause( self ):
 		"""
 		sets the grids thread to pause, or rather to just stop time_passes 
 		"""
 		self.statusbar.showMessage( 'Pause' )
-		self.grid_window._pause( )
+		self.grid_window.pause( )
 # 		self.grid_window.run = False
 		
 		
@@ -158,14 +165,16 @@ class Top_Window( QtWidgets.QMainWindow ):
 		sets the grids thread to play, or rather to just start time_passes 
 		"""
 		self.statusbar.showMessage( 'Play' )
-		self.grid_window.run = True 
+		self.grid_window._play( )
+# 		self.grid_window.run = True 
 
 	
 	def _reset( self ):
 		# pause before reset
-		self._pause( )
+# 		self.pause( )
 		self.statusbar.showMessage( 'Reset' )
-		self.grid_window.grid.reset( )
+		self.grid_window.reset( )
+
 
 	def closeEvent( self, event ):
 		"""
@@ -197,6 +206,8 @@ class Grid_Window( QtWidgets.QWidget ):
 # 		layout = QtWidgets.QGridLayout( )
 		layout = QtWidgets.QBoxLayout( QtWidgets.QBoxLayout.TopToBottom )
 		
+		play_controls = self.setup_play_controls( )
+		layout.addWidget( play_controls, stretch = 0 )
 		horizontal_layout = self.setup_top_controls( )
 		layout.addWidget( horizontal_layout, stretch = 0 )	
 
@@ -215,6 +226,28 @@ class Grid_Window( QtWidgets.QWidget ):
 		
 		self.setLayout( layout )
 		self.thread.start( )
+	
+
+	def setup_play_controls( self ):
+		horizontal_group = QtWidgets.QGroupBox( "Play Controls" )
+		layout = QtWidgets.QHBoxLayout( )
+		
+		play_button = QtWidgets.QPushButton( 'Play', self )
+		layout.addWidget( play_button )
+		pause_button = QtWidgets.QPushButton( 'Pause', self )
+		layout.addWidget( pause_button )
+		reset_button = QtWidgets.QPushButton( 'Reset', self )
+		layout.addWidget( reset_button )
+		
+		
+		horizontal_group.setLayout( layout )
+	
+		play_button.clicked.connect( self._play )
+		pause_button.clicked.connect( self.pause )
+		reset_button.clicked.connect( self.reset )
+
+
+		return horizontal_group
 	
 
 	def setup_top_controls( self ):
@@ -308,7 +341,7 @@ class Grid_Window( QtWidgets.QWidget ):
 		:param grid_subdiv: The Horiz and Vert Subdivisions ( matched in each access)
 		:type grid_subdiv: int
 		'''
-		self._pause( )
+		self.pause( )
 		const.GRID_SUBDIV = grid_subdiv
 		self.grid.reset( )
 		
@@ -320,7 +353,7 @@ class Grid_Window( QtWidgets.QWidget ):
 		:param idx: The index into the list
 		:type idx: int
 		'''
-		self._pause( )
+		self.pause( )
 		key = self.cb_evol.itemText( idx )
 		const.RULE_TO_USE = key
 
@@ -332,7 +365,7 @@ class Grid_Window( QtWidgets.QWidget ):
 		:param display: Display the Grid
 		:type display: bool
 		'''
-		self._pause( )
+		self.pause( )
 		const.DRAW_GRID = display 
 	
 
@@ -344,14 +377,24 @@ class Grid_Window( QtWidgets.QWidget ):
 		:type idx: int
 		'''
 
-		self._pause( )
+		self.pause( )
 		data.Life.MAX_LIFE = life_duration
 		const.MAX_LIFE = life_duration 
 		
+
+	def _play( self ):
+		self.run = True
 		
-	def _pause( self ):
+
+	def pause( self ):
 		self.run = False
 		
+	
+	def reset( self ):	
+		self.pause( )
+		self.grid.reset( )
+		
+
 
 class Grid( QtWidgets.QWidget ):
 	"""
