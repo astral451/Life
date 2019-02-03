@@ -77,6 +77,7 @@ def create_chart( life_log ):
 	with open( const.CHART_FILE_NAME, 'w' ) as fio:
 		fio.write( final_html )
 
-	print( const.CHART_FILE_NAME )
+#     print( const.CHART_FILE_NAME )
+	return const.CHART_FILE_NAME
 
 	

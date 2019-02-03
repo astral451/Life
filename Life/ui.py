@@ -18,9 +18,8 @@ import time
 import Qt.QtCore as QtCore
 import Qt.QtGui as QtGui
 import Qt.QtWidgets as QtWidgets
-
-import data
 import const
+import data
 import graph
 
 
@@ -51,8 +50,8 @@ class Run_Thread( threading.Thread ):
 		while self.keep_going:
 			self.method_to_execute( )
 			time.sleep( self.duration )
-
 	
+
 	def stop( self ):
 		self.keep_going = False
 		
@@ -116,7 +115,6 @@ class Top_Window( QtWidgets.QMainWindow ):
 		graph_act.setStatusTip( 'Graph Data' )
 		graph_act.triggered.connect( self._graph )
 		
-		
 		menu_bar = self.menuBar( )
 		menu_bar.addAction( play_act )
 		menu_bar.addAction( pause_act )
@@ -124,13 +122,6 @@ class Top_Window( QtWidgets.QMainWindow ):
 		menu_bar.addAction( graph_act )
 
 
-# 	def setup_play_controls(self ):
-# 		horizontal_group = QtWidgets.QGroupBox( "Play Controls" )
-# 		layout = QtWidgets.QHBoxLayout( )
-# 		
-# 		layout.addWidget( QtWidgets.QPushButton( 'Play', self ) )
-# 		horizontal_group.setLayout( layout )
-# 		
 
 	def setup_top_controls( self ):
 		horizontalGroupBox = QtWidgets.QGroupBox("Horizontal layout")
@@ -238,6 +229,8 @@ class Grid_Window( QtWidgets.QWidget ):
 		layout.addWidget( pause_button )
 		reset_button = QtWidgets.QPushButton( 'Reset', self )
 		layout.addWidget( reset_button )
+		graph_button = QtWidgets.QPushButton( 'Graph', self )
+		layout.addWidget( graph_button )
 		
 		
 		horizontal_group.setLayout( layout )
@@ -245,6 +238,7 @@ class Grid_Window( QtWidgets.QWidget ):
 		play_button.clicked.connect( self._play )
 		pause_button.clicked.connect( self.pause )
 		reset_button.clicked.connect( self.reset )
+		graph_button.clicked.connect( self.graph )
 
 
 		return horizontal_group
@@ -385,6 +379,15 @@ class Grid_Window( QtWidgets.QWidget ):
 	def _play( self ):
 		self.run = True
 		
+	
+	def graph( self ):
+		self.pause( )
+		graph_file = graph.create_chart( self.grid.data.life_log )
+		
+		message_box = QtWidgets.QMessageBox( )
+		message_box.setText( 'The Graph was saved to {0}'.format( graph_file ) )
+		message_box.exec_( )
+
 
 	def pause( self ):
 		self.run = False
