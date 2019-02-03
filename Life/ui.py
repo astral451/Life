@@ -81,7 +81,6 @@ class Top_Window( QtWidgets.QMainWindow ):
 		self.setGeometry( 200, 200, 512, 512 )
 		self.setWindowTitle( "Life" )
 
-		self.setup_top_controls( )
 		self.grid_window = Grid_Window( )
 		self.setCentralWidget( self.grid_window )
 
@@ -122,20 +121,6 @@ class Top_Window( QtWidgets.QMainWindow ):
 		menu_bar.addAction( graph_act )
 
 
-
-	def setup_top_controls( self ):
-		horizontalGroupBox = QtWidgets.QGroupBox("Horizontal layout")
-		layout = QtWidgets.QHBoxLayout()
-
-		layout.addWidget(QtWidgets.QComboBox())
-		layout.addWidget(QtWidgets.QSpinBox())
-# 		layout.addWidget(button)
-
-		horizontalGroupBox.setLayout(layout)
-		
-		return horizontalGroupBox
-
-		
 	def _graph( self ):
 		# first pause
 		self.pause( )
